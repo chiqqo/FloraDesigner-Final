@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-800;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-flora-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-flora-700 transition-colors duration-200;
+  }
+  .btn-outline {
+    @apply border border-flora-600 text-flora-600 px-6 py-2.5 rounded-lg font-medium hover:bg-flora-50 transition-colors duration-200;
+  }
+  .page-title {
+    @apply text-3xl font-bold text-gray-800 mb-2;
+  }
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden;
+  }
+}
