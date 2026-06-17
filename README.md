@@ -3,6 +3,7 @@
 A full-stack AI-assisted bouquet marketplace built as a bachelor graduation project. FloraDesigner demonstrates a complete e-commerce workflow — from browsing a curated catalog and AI-assisted custom bouquet design, through cart and checkout, to order history and admin management.
 
 > For the presentation script, demo credentials, and step-by-step demo flow see [DEMO_GUIDE.md](./DEMO_GUIDE.md).
+> For the full REST API reference, request/response examples, and MongoDB schema overview see [API_DOCUMENTATION.md](./API_DOCUMENTATION.md).
 
 ---
 
@@ -248,6 +249,7 @@ No dollar signs appear anywhere in the UI. Backend stores prices as plain number
 npm run dev    # Start with nodemon (auto-restart on change)
 npm start      # Start with plain node
 npm run seed   # Delete existing products and insert 12 demo bouquets
+npm run smoke  # Run smoke tests against the running backend (requires server on port 5000)
 ```
 
 ### Frontend
