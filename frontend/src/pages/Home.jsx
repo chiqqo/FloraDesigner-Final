@@ -43,14 +43,18 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="text-center py-20">
-        <p className="text-flora-500 text-sm font-medium tracking-widest uppercase mb-3">
-          {t('home.tag')}
-        </p>
-        <h1 className="text-5xl font-bold text-flora-700 mb-4 leading-tight">
-          {t('home.title1')}
-          <br />
-          {t('home.title2')}
-        </h1>
+        {t('home.tag').trim() && (
+          <p className="text-flora-500 text-sm font-medium tracking-widest uppercase mb-3">
+            {t('home.tag')}
+          </p>
+        )}
+        {(t('home.title1').trim() || t('home.title2').trim()) && (
+          <h1 className="text-5xl font-bold text-flora-700 mb-4 leading-tight">
+            {t('home.title1')}
+            {t('home.title1').trim() && t('home.title2').trim() && <br />}
+            {t('home.title2')}
+          </h1>
+        )}
         <p className="text-gray-500 text-lg mb-10 max-w-xl mx-auto">
           {t('home.desc')}
         </p>
