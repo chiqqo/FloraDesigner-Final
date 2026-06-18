@@ -1,16 +1,53 @@
 const GeneratedDesign = require('../models/GeneratedDesign');
 const { GoogleGenAI } = require('@google/genai');
 
-const SIMULATED_IMAGES = [
-  'https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1499063078284-f78f7d89616a?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1444930694458-01babf71870c?auto=format&fit=crop&w=600&q=80',
+const IMAGE_POOL = [
+  {
+    url: 'https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?auto=format&fit=crop&w=600&q=80',
+    tags: ['roses', 'red', 'romantic', 'anniversary', 'classic', 'wedding', 'ვარდები', 'წითელი', 'რომანტიკული', 'წლისთავი', 'კლასიკური', 'ქორწილი'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=600&q=80',
+    tags: ['pink', 'peonies', 'pastel', 'wedding', 'romantic', 'luxury', 'birthday', 'ვარდისფერი', 'პეონები', 'ქორწილი', 'რომანტიკული', 'ლუქსი', 'დაბადების დღე'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1499063078284-f78f7d89616a?auto=format&fit=crop&w=600&q=80',
+    tags: ['general gift', 'birthday', 'mixed', 'colorful', 'classic', 'everyday', 'sympathy', 'graduation', 'ზოგადი საჩუქარი', 'დაბადების დღე', 'კლასიკური', 'კურსდამთავრება', 'თანაგრძნობა'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=600&q=80',
+    tags: ['white', 'elegant', 'wedding', 'sympathy', 'classic', 'lilies', 'minimal', 'ivory', 'თეთრი', 'ქორწილი', 'კლასიკური', 'შროშანები', 'მინიმალური', 'თანაგრძნობა'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=600&q=80',
+    tags: ['sunflowers', 'yellow', 'birthday', 'wildflower', 'cheerful', 'orange', 'seasonal', 'მზესუმზირები', 'ყვითელი', 'დაბადების დღე', 'ველური'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80',
+    tags: ['tropical', 'exotic', 'orange', 'corporate', 'modern', 'extra large', 'bold', 'ნარინჯისფერი', 'ტროპიკული', 'თანამედროვე'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=600&q=80',
+    tags: ['lavender', 'purple', 'wildflower', 'minimal', 'small', 'housewarming', 'natural', 'ლავანდა', 'იასამნისფერი', 'ველური', 'მინიმალური', 'პატარა'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1444930694458-01babf71870c?auto=format&fit=crop&w=600&q=80',
+    tags: ['wildflowers', 'blue', 'pink', 'yellow', 'everyday', 'natural', 'small', 'wildflower', 'ველური ყვავილები', 'ლურჯი', 'ყოველდღიური', 'ბუნებრივი'],
+  },
 ];
+
+function scoreImages({ occasion = '', style = '', bouquetSize = '', wrappingStyle = '', preferredFlowers = [], preferredColors = [], description = '' }) {
+  const input = [occasion, style, bouquetSize, wrappingStyle, ...preferredFlowers, ...preferredColors, description]
+    .filter(Boolean).join(' ').toLowerCase();
+  const hash = [...input].reduce((a, c) => (a * 31 + c.charCodeAt(0)) & 0xffff, 0);
+  const scored = IMAGE_POOL.map((img, idx) => ({
+    url: img.url,
+    score: img.tags.filter(tag => input.includes(tag.toLowerCase())).length,
+    tiebreak: (hash + idx) % IMAGE_POOL.length,
+  }));
+  scored.sort((a, b) => b.score - a.score || a.tiebreak - b.tiebreak);
+  return scored.slice(0, 4).map(x => x.url);
+}
 
 const BASE_PRICES = { Small: 65, Medium: 95, Large: 130, 'Extra Large': 160 };
 const STYLE_MULTIPLIERS = { Luxury: 1.2, Romantic: 1.1, Classic: 1.05 };
@@ -108,11 +145,8 @@ const generateDesigns = async (req, res) => {
       });
     }
 
-    // Simulated fallback
-    const seedStr = occasion + style + bouquetSize;
-    const hash = [...seedStr].reduce((a, c) => (a * 31 + c.charCodeAt(0)) & 0xffff, 0);
-    const start = hash % Math.max(1, SIMULATED_IMAGES.length - 3);
-    const generatedImages = SIMULATED_IMAGES.slice(start, start + 4);
+    // Simulated fallback — tag-based scoring
+    const generatedImages = scoreImages({ occasion, style, bouquetSize, ...rest });
     res.json({
       prompt,
       generatedImages,

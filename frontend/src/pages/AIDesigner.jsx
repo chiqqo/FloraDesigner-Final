@@ -5,22 +5,40 @@ import { generateDesign, saveDesign } from '../services/api';
 import { FALLBACK_BOUQUET_IMAGE, handleImageError } from '../utils/imageFallback';
 import { useLanguage } from '../context/LanguageContext';
 
-const OCCASIONS = ['Birthday', 'Anniversary', 'Wedding', 'Romantic Gift', 'Sympathy', 'Graduation', 'General Gift'];
-const SIZES = ['Small', 'Medium', 'Large', 'Extra Large'];
-const STYLES = ['Romantic', 'Minimal', 'Luxury', 'Wildflower', 'Modern', 'Classic'];
-const WRAPPINGS = ['Kraft paper', 'Satin ribbon', 'Luxury box', 'Transparent wrap', 'Minimal white wrap'];
-const FLOWER_OPTIONS = ['Roses', 'Peonies', 'Tulips', 'Sunflowers', 'Lilies', 'Lavender', 'Orchids', 'Dahlias', 'Wildflowers'];
-const COLOR_OPTIONS = ['Red', 'Pink', 'White', 'Yellow', 'Orange', 'Purple', 'Blue', 'Peach', 'Coral', 'Lavender'];
-
-const SIMULATED_IMAGES = [
-  'https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1499063078284-f78f7d89616a?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=600&q=80',
-  'https://images.unsplash.com/photo-1444930694458-01babf71870c?auto=format&fit=crop&w=600&q=80',
+// Fallback image pool with semantic tags (used when backend is unreachable)
+const IMAGE_POOL = [
+  {
+    url: 'https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?auto=format&fit=crop&w=600&q=80',
+    tags: ['roses', 'red', 'romantic', 'anniversary', 'classic', 'wedding', 'ვარდები', 'წითელი', 'რომანტიკული', 'წლისთავი', 'კლასიკური', 'ქორწილი'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=600&q=80',
+    tags: ['pink', 'peonies', 'pastel', 'wedding', 'romantic', 'luxury', 'birthday', 'ვარდისფერი', 'პეონები', 'ქორწილი', 'რომანტიკული', 'ლუქსი', 'დაბადების დღე'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1499063078284-f78f7d89616a?auto=format&fit=crop&w=600&q=80',
+    tags: ['general gift', 'birthday', 'mixed', 'colorful', 'classic', 'everyday', 'sympathy', 'graduation', 'ზოგადი საჩუქარი', 'დაბადების დღე', 'კლასიკური', 'კურსდამთავრება', 'თანაგრძნობა'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=600&q=80',
+    tags: ['white', 'elegant', 'wedding', 'sympathy', 'classic', 'lilies', 'minimal', 'ivory', 'თეთრი', 'ქორწილი', 'კლასიკური', 'შროშანები', 'მინიმალური', 'თანაგრძნობა'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=600&q=80',
+    tags: ['sunflowers', 'yellow', 'birthday', 'wildflower', 'cheerful', 'orange', 'seasonal', 'მზესუმზირები', 'ყვითელი', 'დაბადების დღე', 'ველური'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80',
+    tags: ['tropical', 'exotic', 'orange', 'corporate', 'modern', 'extra large', 'bold', 'ნარინჯისფერი', 'ტროპიკული', 'თანამედროვე'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=600&q=80',
+    tags: ['lavender', 'purple', 'wildflower', 'minimal', 'small', 'housewarming', 'natural', 'ლავანდა', 'იასამნისფერი', 'ველური', 'მინიმალური', 'პატარა'],
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1444930694458-01babf71870c?auto=format&fit=crop&w=600&q=80',
+    tags: ['wildflowers', 'blue', 'pink', 'yellow', 'everyday', 'natural', 'small', 'wildflower', 'ველური ყვავილები', 'ლურჯი', 'ყოველდღიური', 'ბუნებრივი'],
+  },
 ];
 
 const BASE_PRICES = { Small: 65, Medium: 95, Large: 130, 'Extra Large': 160 };
@@ -30,6 +48,23 @@ function estimatePrice(size, style) {
   const base = BASE_PRICES[size] || 95;
   const mult = STYLE_MULTIPLIERS[style] || 1;
   return Math.round(base * mult);
+}
+
+function scoreImages(form) {
+  const input = [
+    form.occasion, form.style, form.bouquetSize, form.wrappingStyle,
+    ...(form.preferredFlowers || []), ...(form.preferredColors || []),
+    form.description,
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  const hash = [...input].reduce((a, c) => (a * 31 + c.charCodeAt(0)) & 0xffff, 0);
+  const scored = IMAGE_POOL.map((img, idx) => ({
+    url: img.url,
+    score: img.tags.filter(tag => input.includes(tag.toLowerCase())).length,
+    tiebreak: (hash + idx) % IMAGE_POOL.length,
+  }));
+  scored.sort((a, b) => b.score - a.score || a.tiebreak - b.tiebreak);
+  return scored.slice(0, 4).map(x => x.url);
 }
 
 function buildPrompt(form) {
@@ -45,12 +80,9 @@ function buildPrompt(form) {
 }
 
 function generateLocally(form) {
-  const seedStr = (form.occasion || '') + (form.style || '') + (form.bouquetSize || '');
-  const hash = [...seedStr].reduce((a, c) => (a * 31 + c.charCodeAt(0)) & 0xffff, 0);
-  const start = hash % Math.max(1, SIMULATED_IMAGES.length - 3);
   return {
     prompt: buildPrompt(form),
-    generatedImages: SIMULATED_IMAGES.slice(start, start + 4),
+    generatedImages: scoreImages(form),
     estimatedPrice: estimatePrice(form.bouquetSize, form.style),
   };
 }
@@ -58,18 +90,18 @@ function generateLocally(form) {
 function SingleChips({ options, selected, onSelect }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {options.map((opt) => (
+      {options.map(({ value, label }) => (
         <button
-          key={opt}
+          key={value}
           type="button"
-          onClick={() => onSelect(selected === opt ? '' : opt)}
+          onClick={() => onSelect(selected === value ? '' : value)}
           className={`px-3 py-1.5 text-xs rounded-full border transition ${
-            selected === opt
+            selected === value
               ? 'bg-flora-600 text-white border-flora-600'
               : 'bg-white text-gray-600 border-gray-200 hover:border-flora-300'
           }`}
         >
-          {opt}
+          {label}
         </button>
       ))}
     </div>
@@ -79,18 +111,18 @@ function SingleChips({ options, selected, onSelect }) {
 function MultiChips({ options, selected, onToggle }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {options.map((opt) => (
+      {options.map(({ value, label }) => (
         <button
-          key={opt}
+          key={value}
           type="button"
-          onClick={() => onToggle(opt)}
+          onClick={() => onToggle(value)}
           className={`px-3 py-1.5 text-xs rounded-full border transition ${
-            selected.includes(opt)
+            selected.includes(value)
               ? 'bg-flora-600 text-white border-flora-600'
               : 'bg-white text-gray-600 border-gray-200 hover:border-flora-300'
           }`}
         >
-          {opt}
+          {label}
         </button>
       ))}
     </div>
@@ -100,6 +132,60 @@ function MultiChips({ options, selected, onToggle }) {
 export default function AIDesigner() {
   const { addToCart } = useCart();
   const { t, formatCurrency } = useLanguage();
+
+  const occasions = [
+    { value: 'Birthday', label: t('ai.occ.Birthday') },
+    { value: 'Anniversary', label: t('ai.occ.Anniversary') },
+    { value: 'Wedding', label: t('ai.occ.Wedding') },
+    { value: 'Romantic Gift', label: t('ai.occ.Romantic Gift') },
+    { value: 'Sympathy', label: t('ai.occ.Sympathy') },
+    { value: 'Graduation', label: t('ai.occ.Graduation') },
+    { value: 'General Gift', label: t('ai.occ.General Gift') },
+  ];
+  const styles = [
+    { value: 'Romantic', label: t('ai.sty.Romantic') },
+    { value: 'Minimal', label: t('ai.sty.Minimal') },
+    { value: 'Luxury', label: t('ai.sty.Luxury') },
+    { value: 'Wildflower', label: t('ai.sty.Wildflower') },
+    { value: 'Modern', label: t('ai.sty.Modern') },
+    { value: 'Classic', label: t('ai.sty.Classic') },
+  ];
+  const sizes = [
+    { value: 'Small', label: t('ai.sz.Small') },
+    { value: 'Medium', label: t('ai.sz.Medium') },
+    { value: 'Large', label: t('ai.sz.Large') },
+    { value: 'Extra Large', label: t('ai.sz.Extra Large') },
+  ];
+  const wrappings = [
+    { value: 'Kraft paper', label: t('ai.wrp.Kraft paper') },
+    { value: 'Satin ribbon', label: t('ai.wrp.Satin ribbon') },
+    { value: 'Luxury box', label: t('ai.wrp.Luxury box') },
+    { value: 'Transparent wrap', label: t('ai.wrp.Transparent wrap') },
+    { value: 'Minimal white wrap', label: t('ai.wrp.Minimal white wrap') },
+  ];
+  const flowerOptions = [
+    { value: 'Roses', label: t('ai.flr.Roses') },
+    { value: 'Peonies', label: t('ai.flr.Peonies') },
+    { value: 'Tulips', label: t('ai.flr.Tulips') },
+    { value: 'Sunflowers', label: t('ai.flr.Sunflowers') },
+    { value: 'Lilies', label: t('ai.flr.Lilies') },
+    { value: 'Lavender', label: t('ai.flr.Lavender') },
+    { value: 'Orchids', label: t('ai.flr.Orchids') },
+    { value: 'Dahlias', label: t('ai.flr.Dahlias') },
+    { value: 'Wildflowers', label: t('ai.flr.Wildflowers') },
+  ];
+  const colorOptions = [
+    { value: 'Red', label: t('ai.clr.Red') },
+    { value: 'Pink', label: t('ai.clr.Pink') },
+    { value: 'White', label: t('ai.clr.White') },
+    { value: 'Yellow', label: t('ai.clr.Yellow') },
+    { value: 'Orange', label: t('ai.clr.Orange') },
+    { value: 'Purple', label: t('ai.clr.Purple') },
+    { value: 'Blue', label: t('ai.clr.Blue') },
+    { value: 'Peach', label: t('ai.clr.Peach') },
+    { value: 'Coral', label: t('ai.clr.Coral') },
+    { value: 'Lavender', label: t('ai.clr.Lavender') },
+  ];
 
   const [form, setForm] = useState({
     occasion: '',
@@ -243,7 +329,7 @@ export default function AIDesigner() {
             <div>
               <p className="text-sm font-medium text-gray-700 mb-2">{t('ai.occasion')}</p>
               <SingleChips
-                options={OCCASIONS}
+                options={occasions}
                 selected={form.occasion}
                 onSelect={(v) => setField('occasion', v)}
               />
@@ -252,7 +338,7 @@ export default function AIDesigner() {
             <div>
               <p className="text-sm font-medium text-gray-700 mb-2">{t('ai.style')}</p>
               <SingleChips
-                options={STYLES}
+                options={styles}
                 selected={form.style}
                 onSelect={(v) => setField('style', v)}
               />
@@ -261,7 +347,7 @@ export default function AIDesigner() {
             <div>
               <p className="text-sm font-medium text-gray-700 mb-2">{t('ai.size')}</p>
               <SingleChips
-                options={SIZES}
+                options={sizes}
                 selected={form.bouquetSize}
                 onSelect={(v) => setField('bouquetSize', v)}
               />
@@ -270,7 +356,7 @@ export default function AIDesigner() {
             <div>
               <p className="text-sm font-medium text-gray-700 mb-2">{t('ai.wrap')}</p>
               <SingleChips
-                options={WRAPPINGS}
+                options={wrappings}
                 selected={form.wrappingStyle}
                 onSelect={(v) => setField('wrappingStyle', v)}
               />
@@ -282,7 +368,7 @@ export default function AIDesigner() {
                 <span className="text-gray-400 font-normal">{t('ai.flowers.any')}</span>
               </p>
               <MultiChips
-                options={FLOWER_OPTIONS}
+                options={flowerOptions}
                 selected={form.preferredFlowers}
                 onToggle={(v) => toggleMulti('preferredFlowers', v)}
               />
@@ -294,7 +380,7 @@ export default function AIDesigner() {
                 <span className="text-gray-400 font-normal">{t('ai.colors.any')}</span>
               </p>
               <MultiChips
-                options={COLOR_OPTIONS}
+                options={colorOptions}
                 selected={form.preferredColors}
                 onToggle={(v) => toggleMulti('preferredColors', v)}
               />
