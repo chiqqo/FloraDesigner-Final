@@ -1,4 +1,4 @@
-# FloraDesigner — Technical Report
+﻿# FloraDesigner â€” Technical Report
 
 ---
 
@@ -6,7 +6,7 @@
 **Project type:** Full-stack AI-assisted floral e-commerce platform  
 **Student:** Goga Chiqovani  
 **Email:** goga.chiqovani.st@gmail.com  
-**Repository:** https://github.com/chiqqo/FloraDesigner  
+**Repository:** https://github.com/chiqqo/FloraDesigner-Final  
 **Date:** June 2026  
 
 ---
@@ -51,7 +51,7 @@ The project demonstrates end-to-end software engineering practices: RESTful API 
 
 Online retail for perishable goods such as flowers presents unique challenges: customers need confidence in product quality and availability, they benefit from personalization tools that go beyond a fixed catalog, and the purchasing flow must be friction-free on both desktop and mobile browsers. For a Georgian audience, the interface must operate in Georgian by default while remaining accessible in English for international visitors.
 
-FloraDesigner addresses these challenges by providing two complementary shopping paths: a filtered catalog of twelve hand-curated bouquets, and an AI-assisted designer that lets customers specify occasion, flowers, colors, style, size, and wrapping before receiving a generated design concept and price estimate. The entire flow — from browsing to checkout to order history — is implemented as a single-page application with server-side persistence and client-side fallback.
+FloraDesigner addresses these challenges by providing two complementary shopping paths: a filtered catalog of twelve hand-curated bouquets, and an AI-assisted designer that lets customers specify occasion, flowers, colors, style, size, and wrapping before receiving a generated design concept and price estimate. The entire flow â€” from browsing to checkout to order history â€” is implemented as a single-page application with server-side persistence and client-side fallback.
 
 This report documents the technical design decisions, architecture, implementation details, and evaluation of the project.
 
@@ -59,9 +59,9 @@ This report documents the technical design decisions, architecture, implementati
 
 ## Problem Statement
 
-Existing flower shop websites in Georgia typically offer a static catalog of fixed products with limited filtering. Customers who have a specific occasion in mind — a wedding, a graduation, or a sympathy arrangement — cannot easily communicate their preferences within the confines of a predefined catalog. Custom orders require telephone calls or in-person visits, which creates friction and excludes customers who prefer to shop digitally.
+Existing flower shop websites in Georgia typically offer a static catalog of fixed products with limited filtering. Customers who have a specific occasion in mind â€” a wedding, a graduation, or a sympathy arrangement â€” cannot easily communicate their preferences within the confines of a predefined catalog. Custom orders require telephone calls or in-person visits, which creates friction and excludes customers who prefer to shop digitally.
 
-Additionally, many local e-commerce implementations lack bilingual support, leaving English-speaking residents or tourists without a native-language experience. Price display conventions also differ: Georgian customers expect the Lari symbol (₾) directly before the amount, while English-language conventions typically append the currency code after the number.
+Additionally, many local e-commerce implementations lack bilingual support, leaving English-speaking residents or tourists without a native-language experience. Price display conventions also differ: Georgian customers expect the Lari symbol (â‚¾) directly before the amount, while English-language conventions typically append the currency code after the number.
 
 FloraDesigner was built to solve these problems by:
 
@@ -91,11 +91,11 @@ FloraDesigner was built to solve these problems by:
 
 FloraDesigner consists of three logical tiers:
 
-1. **Frontend** — A React 18 single-page application served by a Vite dev server on port 3000 (development) or as static files (production build). It communicates with the backend exclusively through the `/api` prefix, which Vite proxies to `http://localhost:5000` in development.
+1. **Frontend** â€” A React 18 single-page application served by a Vite dev server on port 3000 (development) or as static files (production build). It communicates with the backend exclusively through the `/api` prefix, which Vite proxies to `http://localhost:5000` in development.
 
-2. **Backend** — A Node.js + Express REST API on port 5000. It connects to MongoDB Atlas, handles all business logic, proxies Gemini API calls, and enforces admin-only route protection.
+2. **Backend** â€” A Node.js + Express REST API on port 5000. It connects to MongoDB Atlas, handles all business logic, proxies Gemini API calls, and enforces admin-only route protection.
 
-3. **Database** — MongoDB Atlas (cloud) with four collections: `products`, `orders`, `contactmessages`, and `generateddesigns`.
+3. **Database** â€” MongoDB Atlas (cloud) with four collections: `products`, `orders`, `contactmessages`, and `generateddesigns`.
 
 ```mermaid
 graph TB
@@ -104,16 +104,16 @@ graph TB
         LS["localStorage<br/>(fallback)"]
     end
 
-    subgraph Backend["Backend — Node.js + Express (port 5000)"]
+    subgraph Backend["Backend â€” Node.js + Express (port 5000)"]
         API["REST API<br/>/api/*"]
-        MW["Middleware<br/>requireAdmin · requireDatabase"]
-        CTRL["Controllers<br/>products · orders · contact · designer · auth"]
+        MW["Middleware<br/>requireAdmin Â· requireDatabase"]
+        CTRL["Controllers<br/>products Â· orders Â· contact Â· designer Â· auth"]
     end
 
     subgraph External
         DB[(MongoDB Atlas)]
         GEMINI["Google Gemini API<br/>(optional)"]
-        UNSPLASH["Unsplash IMAGE_POOL<br/>(fallback — no live call)"]
+        UNSPLASH["Unsplash IMAGE_POOL<br/>(fallback â€” no live call)"]
     end
 
     FE -->|"HTTP /api/*"| API
@@ -148,7 +148,7 @@ graph TB
 |---|---|
 | Admin login | Credentials validated server-side; signed expiring token stored in `sessionStorage`. |
 | Dashboard | Summary stats (products, orders, revenue, AI designs). Order list with status update. Contact messages. |
-| Product management | Full CRUD — add, edit, delete, availability toggle. |
+| Product management | Full CRUD â€” add, edit, delete, availability toggle. |
 
 ---
 
@@ -160,15 +160,15 @@ graph TB
 | Build tool | Vite | 5 |
 | CSS framework | Tailwind CSS | 3 |
 | Routing | React Router | v6 |
-| State management | React Context API | — |
+| State management | React Context API | â€” |
 | Backend framework | Node.js + Express | 18 / 4 |
 | ODM | Mongoose | 8 |
-| Database | MongoDB Atlas | — |
+| Database | MongoDB Atlas | â€” |
 | AI image generation | Google Gemini API (`@google/genai`) | 0.x |
-| Environment config | dotenv | — |
-| Hot reload (dev) | nodemon | — |
-| Package management | npm | — |
-| Version control | Git + GitHub | — |
+| Environment config | dotenv | â€” |
+| Hot reload (dev) | nodemon | â€” |
+| Package management | npm | â€” |
+| Version control | Git + GitHub | â€” |
 
 No Redux, no external i18n library, no payment gateway, no customer auth system. All state is handled by React Context or `localStorage`.
 
@@ -181,7 +181,7 @@ No Redux, no external i18n library, no payment gateway, no customer auth system.
 ```mermaid
 graph LR
     subgraph Frontend
-        CTX["Contexts<br/>CartContext · LanguageContext"]
+        CTX["Contexts<br/>CartContext Â· LanguageContext"]
         PAGES["14 Page Components"]
         SVC["services/api.js<br/>(all fetch calls)"]
         UTIL["utils/imageFallback.js"]
@@ -189,10 +189,10 @@ graph LR
 
     subgraph Backend
         SRV["server.js<br/>Express + CORS + JSON"]
-        ROUTES["routes/<br/>products · orders · contact · designer · auth · health"]
-        MWR["middleware/<br/>requireAdmin · requireDatabase"]
-        CTRLS["controllers/<br/>productController · orderController<br/>contactController · generatedDesignController<br/>authController"]
-        MODELS["models/<br/>Product · Order · ContactMessage · GeneratedDesign"]
+        ROUTES["routes/<br/>products Â· orders Â· contact Â· designer Â· auth Â· health"]
+        MWR["middleware/<br/>requireAdmin Â· requireDatabase"]
+        CTRLS["controllers/<br/>productController Â· orderController<br/>contactController Â· generatedDesignController<br/>authController"]
+        MODELS["models/<br/>Product Â· Order Â· ContactMessage Â· GeneratedDesign"]
         CFG["config/db.js<br/>mongoose.connect()"]
     end
 
@@ -206,7 +206,7 @@ graph LR
 ### Request lifecycle
 
 Every HTTP request from the browser:
-1. Arrives at the Vite proxy (`/api/*` → `localhost:5000`) in development.
+1. Arrives at the Vite proxy (`/api/*` â†’ `localhost:5000`) in development.
 2. Passes through Express JSON parsing and CORS middleware.
 3. Reaches the matching route handler.
 4. If admin-protected: `requireAdmin` validates the signed `X-Admin-Key` token and expiry.
@@ -221,19 +221,19 @@ Every HTTP request from the browser:
 
 ```
 frontend/src/
-├── context/
-│   ├── CartContext.jsx        — cart items array, add/remove/update, total calculation
-│   └── LanguageContext.jsx    — translations object, t() helper, formatCurrency(), language toggle
-├── pages/                     — 14 page components (one per route)
-├── components/
-│   ├── Navbar.jsx             — language toggle, cart icon, navigation links
-│   └── Layout.jsx             — wraps all pages with Navbar + max-width container
-├── data/
-│   └── products.js            — 12 hardcoded mock products (offline fallback)
-├── services/
-│   └── api.js                 — all fetch() calls; every function has try/catch
-└── utils/
-    └── imageFallback.js       — onError handler for broken product images
+â”œâ”€â”€ context/
+â”‚   â”œâ”€â”€ CartContext.jsx        â€” cart items array, add/remove/update, total calculation
+â”‚   â””â”€â”€ LanguageContext.jsx    â€” translations object, t() helper, formatCurrency(), language toggle
+â”œâ”€â”€ pages/                     â€” 14 page components (one per route)
+â”œâ”€â”€ components/
+â”‚   â”œâ”€â”€ Navbar.jsx             â€” language toggle, cart icon, navigation links
+â”‚   â””â”€â”€ Layout.jsx             â€” wraps all pages with Navbar + max-width container
+â”œâ”€â”€ data/
+â”‚   â””â”€â”€ products.js            â€” 12 hardcoded mock products (offline fallback)
+â”œâ”€â”€ services/
+â”‚   â””â”€â”€ api.js                 â€” all fetch() calls; every function has try/catch
+â””â”€â”€ utils/
+    â””â”€â”€ imageFallback.js       â€” onError handler for broken product images
 ```
 
 ### Routing
@@ -261,8 +261,8 @@ React Router v6 with `<BrowserRouter>`. All routes are defined in `App.jsx`:
 
 Two React Contexts are created in `main.jsx` and wrap the entire application:
 
-- **`CartContext`** — holds `cartItems`, exposes `addToCart`, `removeFromCart`, `updateQuantity`, `clearCart`, and a computed `cartTotal`.
-- **`LanguageContext`** — holds the current `language` (`'ka'` or `'en'`), the `t(key, vars)` translation function (supports `{variable}` interpolation), `formatCurrency(amount)`, and `toggleLanguage`. Language persists in `localStorage` under key `'floradesigner_language'`. Default is `'ka'` (Georgian).
+- **`CartContext`** â€” holds `cartItems`, exposes `addToCart`, `removeFromCart`, `updateQuantity`, `clearCart`, and a computed `cartTotal`.
+- **`LanguageContext`** â€” holds the current `language` (`'ka'` or `'en'`), the `t(key, vars)` translation function (supports `{variable}` interpolation), `formatCurrency(amount)`, and `toggleLanguage`. Language persists in `localStorage` under key `'floradesigner_language'`. Default is `'ka'` (Georgian).
 
 ### User flow diagram
 
@@ -292,7 +292,7 @@ flowchart TD
 
 ### Entry point
 
-`server.js` bootstraps the Express app: applies CORS (origin from `CLIENT_ORIGIN` env), enables `express.json()`, calls `connectDB()` (non-blocking — the app serves requests even if MongoDB is still connecting), and mounts the router at `/api`.
+`server.js` bootstraps the Express app: applies CORS (origin from `CLIENT_ORIGIN` env), enables `express.json()`, calls `connectDB()` (non-blocking â€” the app serves requests even if MongoDB is still connecting), and mounts the router at `/api`.
 
 ### Middleware
 
@@ -424,7 +424,7 @@ erDiagram
     ORDER ||--o{ ORDER_ITEM : "contains"
 ```
 
-`ORDER_ITEM` is an embedded subdocument within `ORDER` (no separate collection). `PRODUCT` and `ORDER` are independent — the order snapshot duplicates item data at checkout time to remain consistent even if the product is later edited or deleted.
+`ORDER_ITEM` is an embedded subdocument within `ORDER` (no separate collection). `PRODUCT` and `ORDER` are independent â€” the order snapshot duplicates item data at checkout time to remain consistent even if the product is later edited or deleted.
 
 ---
 
@@ -478,12 +478,12 @@ FloraDesigner implements demo-level token-based authentication appropriate for a
 6. The `requireAdmin` middleware verifies the token signature and expiry on every protected route.
 
 **Scope of protection:**
-- `POST /api/products` — create product
-- `PUT /api/products/:id` — update product
-- `DELETE /api/products/:id` — delete product
-- `PUT /api/orders/:id/status` — update order status
-- `GET /api/contact` — read contact messages
-- `GET /api/designer` — list AI designs (admin view)
+- `POST /api/products` â€” create product
+- `PUT /api/products/:id` â€” update product
+- `DELETE /api/products/:id` â€” delete product
+- `PUT /api/orders/:id/status` â€” update order status
+- `GET /api/contact` â€” read contact messages
+- `GET /api/designer` â€” list AI designs (admin view)
 
 The `GEMINI_API_KEY` is held exclusively in `backend/.env` and is never sent to the browser.
 
@@ -532,9 +532,9 @@ AI Designer preference chips use a `{ value, label }` object pattern. The `value
 
 Localization is implemented without any external i18n library. `LanguageContext.jsx` exports:
 
-- `t(key, vars)` — looks up `key` in a `translations[language]` object. If `vars` is provided, replaces `{variableName}` placeholders in the string. Falls back to the key itself if not found.
-- `formatCurrency(amount)` — returns `₾120` in Georgian mode or `120 GEL` in English mode.
-- `toggleLanguage()` — switches between `'ka'` and `'en'`, persists to `localStorage`.
+- `t(key, vars)` â€” looks up `key` in a `translations[language]` object. If `vars` is provided, replaces `{variableName}` placeholders in the string. Falls back to the key itself if not found.
+- `formatCurrency(amount)` â€” returns `â‚¾120` in Georgian mode or `120 GEL` in English mode.
+- `toggleLanguage()` â€” switches between `'ka'` and `'en'`, persists to `localStorage`.
 
 The translations object contains approximately 200 keys covering all UI strings for all 14 pages, including form labels, error messages, status badges, filter options, and payment method names.
 
@@ -542,7 +542,7 @@ The translations object contains approximately 200 keys covering all UI strings 
 
 All prices are stored in MongoDB as plain numbers (e.g., `120`). The `formatCurrency()` function applies locale-appropriate formatting at render time. No dollar signs appear anywhere in the application.
 
-Price range: ₾60 – ₾190.
+Price range: â‚¾60 â€“ â‚¾190.
 
 ---
 
@@ -570,7 +570,7 @@ A custom Node.js smoke test is run via `npm run smoke` from the `backend/` direc
 |---|---|
 | `GET /api/health` | Status 200, `status: "ok"`, `database: "connected"` |
 | `GET /api/products` | Returns **exactly 12 products** |
-| Price range | All product prices in ₾60–₾200 |
+| Price range | All product prices in â‚¾60â€“â‚¾200 |
 | `POST /api/auth/admin/login` | Correct credentials accepted, wrong credentials return 401 |
 | `POST /api/contact` | Message created (201), missing email returns 400 |
 | `POST /api/orders` | Order created (201) with status `Pending` |
@@ -602,7 +602,7 @@ A full code-inspection QA pass was performed across all 14 page components after
 - Cart add/remove/quantity operations correct
 - Checkout form validates, posts to backend, falls back to localStorage
 - Admin login, dashboard, product CRUD, and status update all verified
-- AI chip `{value, label}` pattern enforced — bilingual display, English-only backend submission
+- AI chip `{value, label}` pattern enforced â€” bilingual display, English-only backend submission
 - Georgian and English tag matching in `scoreImages()` verified manually for two representative inputs
 
 ---
@@ -616,7 +616,7 @@ A full code-inspection QA pass was performed across all 14 page components after
 | Admin token scope | Signed `X-Admin-Key` token validated per-request server-side and stored in `sessionStorage` (cleared on tab close). | No `localStorage` for the admin token. |
 | CORS | Express CORS configured to `CLIENT_ORIGIN` from env. | Blocks cross-origin requests from unknown origins. |
 | Input validation | Required-field validation in all controllers and forms. | Not production-hardened; no sanitization against XSS or injection. |
-| No payment data | All payment methods are simulated. No card numbers, CVVs, or financial data are transmitted or stored. | By design — payment gateway integration is out of scope. |
+| No payment data | All payment methods are simulated. No card numbers, CVVs, or financial data are transmitted or stored. | By design â€” payment gateway integration is out of scope. |
 | No customer passwords | No customer registration/login system exists. | Eliminates the risk of customer credential storage. |
 
 ---
@@ -660,20 +660,21 @@ A full code-inspection QA pass was performed across all 14 page components after
 
 ## Conclusion
 
-FloraDesigner successfully demonstrates a complete full-stack web application lifecycle within the scope of a bachelor graduation project. The system implements all major components of a real e-commerce platform — product catalog, cart, checkout, order management, admin dashboard, and an AI-assisted design tool — while maintaining graceful degradation when external services are unavailable.
+FloraDesigner successfully demonstrates a complete full-stack web application lifecycle within the scope of a bachelor graduation project. The system implements all major components of a real e-commerce platform â€” product catalog, cart, checkout, order management, admin dashboard, and an AI-assisted design tool â€” while maintaining graceful degradation when external services are unavailable.
 
 The key technical contributions are:
 
-1. **Bilingual architecture without a third-party i18n library** — a custom `LanguageContext` with a `t(key, vars)` translation function and a `formatCurrency()` helper that handles Georgian and English locale conventions.
+1. **Bilingual architecture without a third-party i18n library** â€” a custom `LanguageContext` with a `t(key, vars)` translation function and a `formatCurrency()` helper that handles Georgian and English locale conventions.
 
-2. **Resilient fallback chain** — every data-fetching operation degrades gracefully from MongoDB → `localStorage` → hardcoded mock data, ensuring the application is always demonstrable regardless of infrastructure availability.
+2. **Resilient fallback chain** â€” every data-fetching operation degrades gracefully from MongoDB â†’ `localStorage` â†’ hardcoded mock data, ensuring the application is always demonstrable regardless of infrastructure availability.
 
-3. **Tag-based AI image scoring** — a deterministic tag-matching algorithm that selects semantically relevant bouquet images from a curated pool when Gemini quota is unavailable, running identically on both the frontend and backend.
+3. **Tag-based AI image scoring** â€” a deterministic tag-matching algorithm that selects semantically relevant bouquet images from a curated pool when Gemini quota is unavailable, running identically on both the frontend and backend.
 
-4. **Automated smoke testing** — a 15-check Node.js smoke test suite that verifies the full API surface on every backend restart, including admin authentication, product seeding, order lifecycle, and AI designer endpoints.
+4. **Automated smoke testing** â€” a 15-check Node.js smoke test suite that verifies the full API surface on every backend restart, including admin authentication, product seeding, order lifecycle, and AI designer endpoints.
 
 The project was built, tested, and delivered within the constraints of a MongoDB Atlas free tier, a Google Gemini API free quota, and a GitHub public repository, demonstrating that a production-quality demo can be delivered with zero infrastructure cost.
 
 ---
 
-*FloraDesigner — Bachelor Graduation Project — Goga Chiqovani — June 2026*
+*FloraDesigner â€” Bachelor Graduation Project â€” Goga Chiqovani â€” June 2026*
+
