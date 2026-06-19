@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Project:** FloraDesigner â€” AI-assisted floral e-commerce platform  
-**Repository:** https://github.com/chiqqo/FloraDesigner-Final  
+**Repository:** https://github.com/chiqqo/FloraDesigner-Final-Final  
 
 ---
 
@@ -42,7 +42,7 @@
 ### Step 1 â€” Clone the repository
 
 ```bash
-git clone https://github.com/chiqqo/FloraDesigner-Final.git
+git clone https://github.com/chiqqo/FloraDesigner-Final-Final.git
 cd FloraDesigner
 ```
 
@@ -588,9 +588,10 @@ If you clone the repository on a new machine:
 3. Run `npm run seed` to populate the database
 4. Start the backend, then the frontend
 
-The repository is public at **https://github.com/chiqqo/FloraDesigner-Final**.
+The repository is public at **https://github.com/chiqqo/FloraDesigner-Final-Final**.
 
 ---
 
 *FloraDesigner User Manual â€” Bachelor Graduation Project â€” Goga Chiqovani â€” June 2026*
+
 

@@ -6,7 +6,7 @@
 **Project type:** Full-stack AI-assisted floral e-commerce platform  
 **Student:** Goga Chiqovani  
 **Email:** goga.chiqovani.st@gmail.com  
-**Repository:** https://github.com/chiqqo/FloraDesigner-Final  
+**Repository:** https://github.com/chiqqo/FloraDesigner-Final-Final  
 **Date:** June 2026  
 
 ---
@@ -677,4 +677,5 @@ The project was built, tested, and delivered within the constraints of a MongoDB
 ---
 
 *FloraDesigner â€” Bachelor Graduation Project â€” Goga Chiqovani â€” June 2026*
+
 
