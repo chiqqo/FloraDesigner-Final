@@ -534,7 +534,7 @@ None. This is a talking slide.
 - An automated 15-check API smoke test suite
 - Graceful degradation to localStorage at every data boundary
 
-**Repository:** https://github.com/chiqqo/FloraDesigner-Final-Final
+**Repository:** https://github.com/chiqqo/FloraDesigner-Final
 
 **Documentation:**
 - `TECHNICAL_REPORT.md` â€” full architecture and design document
@@ -585,5 +585,6 @@ Run these before the presentation begins:
 ---
 
 *FloraDesigner â€” Bachelor Defense Presentation â€” Goga Chiqovani â€” June 2026*
+
 
 
