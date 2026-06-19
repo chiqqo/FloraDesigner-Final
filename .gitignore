@@ -1,4 +1,4 @@
-# Dependencies
+﻿# Dependencies
 node_modules/
 backend/node_modules/
 frontend/node_modules/
@@ -7,7 +7,7 @@ frontend/node_modules/
 frontend/dist/
 backend/dist/
 
-# Environment variables — never commit real secrets
+# Environment variables - never commit real secrets
 .env
 .env.local
 .env.development.local
@@ -30,3 +30,9 @@ Thumbs.db
 
 # Vite cache
 frontend/.vite/
+
+# Local submission artifacts
+*.docx
+*.pptx
+*.pdf
+
