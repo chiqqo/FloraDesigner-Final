@@ -29,8 +29,7 @@ const products = [
     flowers: ['Sunflowers', 'Daisies', 'Marigolds'],
     size: 'Medium',
     occasion: 'Birthday',
-    imageUrl:
-      'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=600&q=80',
+    imageUrl: '/product-images/seasonal-softness.webp',
     available: true,
     deliveryInfo: 'Next-day delivery. Arrives fresh in a gift-ready wrap.',
   },
@@ -86,8 +85,7 @@ const products = [
     flowers: ['Lavender', "Baby's Breath", 'Wheat Stalks'],
     size: 'Small',
     occasion: 'Housewarming',
-    imageUrl:
-      'https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=600&q=80',
+    imageUrl: '/product-images/pastel-harmony.jpg',
     available: true,
     deliveryInfo: 'Ships in 1-2 business days. Dried elements remain fresh indefinitely.',
   },
@@ -115,8 +113,7 @@ const products = [
     flowers: ['Bird of Paradise', 'Anthurium', 'Heliconia', 'Monstera'],
     size: 'Extra Large',
     occasion: 'Corporate',
-    imageUrl:
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80',
+    imageUrl: '/product-images/pink-elegance.jpeg',
     available: true,
     deliveryInfo: 'Delivery in custom tropical crate. 2-day advance notice required.',
   },
@@ -130,8 +127,7 @@ const products = [
     flowers: ['Cornflowers', 'Cosmos', 'Chamomile', 'Grasses'],
     size: 'Small',
     occasion: 'Everyday',
-    imageUrl:
-      'https://images.unsplash.com/photo-1444930694458-01babf71870c?auto=format&fit=crop&w=600&q=80',
+    imageUrl: '/product-images/rose-box.jpg',
     available: true,
     deliveryInfo: 'Next-day delivery. Available year-round. Best enjoyed outdoors.',
   },
