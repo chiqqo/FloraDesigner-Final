@@ -7,6 +7,17 @@ A full-stack AI-assisted bouquet marketplace built as a bachelor graduation proj
 
 ---
 
+## Documentation
+
+| Document | Description |
+|---|---|
+| [TECHNICAL_REPORT.md](./TECHNICAL_REPORT.md) | Bachelor project technical report — architecture, database design, API design, AI strategy, testing, security, and diagrams |
+| [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) | Full REST API reference — all endpoints, request/response examples, Mongoose schemas |
+| [USER_MANUAL.md](./USER_MANUAL.md) | Step-by-step user manual — setup, customer flow, admin flow, Gemini behavior, MongoDB behavior, troubleshooting |
+| [DEMO_GUIDE.md](./DEMO_GUIDE.md) | Presentation script — demo credentials, suggested demo order, known limitations |
+
+---
+
 ## Features
 
 - **Bilingual UI** — Georgian (default) and English, switchable via the Navbar toggle. Language preference persists in `localStorage`.
