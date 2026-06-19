@@ -118,7 +118,7 @@ Admin panel URL: **http://localhost:3000/admin**
 
 ### Step 2 - Products page (`/products`)
 
-- Show the full catalog grid (12 bouquets).
+- Show the full catalog grid (8 bouquets).
 - Demonstrate the search bar (search "rose" or "wedding").
 - Use the filters: Category, Color, Flower Type, Size, Occasion, Price Range.
 - Check "In-stock only" to filter unavailable items.

@@ -569,7 +569,7 @@ A custom Node.js smoke test is run via `npm run smoke` from the `backend/` direc
 | Check | What is verified |
 |---|---|
 | `GET /api/health` | Status 200, `status: "ok"`, `database: "connected"` |
-| `GET /api/products` | Returns **exactly 12 products** |
+| `GET /api/products` | Returns **exactly 8 products** |
 | Price range | All product prices in â‚¾60â€“â‚¾200 |
 | `POST /api/auth/admin/login` | Correct credentials accepted, wrong credentials return 401 |
 | `POST /api/contact` | Message created (201), missing email returns 400 |

@@ -347,5 +347,5 @@ The fallback is intentional and seamless — the frontend displays both Gemini a
 | Payment processing | All payment methods (Cash on Delivery, Demo Card, Bank Transfer) are simulated. No payment gateway is integrated. |
 | Gemini quota | Real AI image generation requires a Gemini API key with active quota or billing enabled. Without it the app uses simulated images automatically. |
 | No customer accounts | Orders are not tied to a logged-in user. Order history is stored per browser in `localStorage` on the frontend. |
-| No pagination | `GET /api/products` and `GET /api/orders` return all documents. Suitable for a demo catalog of 12 products. |
+| No pagination | `GET /api/products` and `GET /api/orders` return all documents. Suitable for a demo catalog of 8 products. |
 | No input sanitization | Basic required-field validation only. Not production-hardened against injection or large payloads. |

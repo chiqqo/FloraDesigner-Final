@@ -101,9 +101,9 @@ async function testGetProducts(dbOk) {
   }
   if (r.status !== 200) { fail('Expected 200', `got ${r.status} ${JSON.stringify(r.body)}`); return null; }
   const arr = Array.isArray(r.body) ? r.body : [];
-  arr.length === 12
-    ? pass(`Returned exactly 12 products`)
-    : fail(`Expected exactly 12 products`, `got ${arr.length} — run: cd backend && npm run seed, then restart the backend`);
+  arr.length === 8
+    ? pass(`Returned exactly 8 products`)
+    : fail(`Expected exactly 8 products`, `got ${arr.length} — run: cd backend && npm run seed, then restart the backend`);
   const prices = arr.map((p) => p.price);
   const minP = Math.min(...prices);
   const maxP = Math.max(...prices);

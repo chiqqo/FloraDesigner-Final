@@ -418,7 +418,7 @@ npm run smoke   â† from the backend/ directory
 | Check | Verifies |
 |---|---|
 | GET /api/health | Status 200, MongoDB connected |
-| GET /api/products | **Exactly 12 products** returned |
+| GET /api/products | **Exactly 8 products** returned |
 | Price range | All prices â‚¾60â€“â‚¾200 |
 | Admin login | Correct creds accepted; wrong creds â†’ 401 |
 | POST /api/contact | Created (201); missing email â†’ 400 |
@@ -437,7 +437,7 @@ npm run smoke   â† from the backend/ directory
 
 > "I built a custom smoke test instead of using a testing framework because I wanted to test the running server, not mocked functions. The smoke test makes real HTTP requests to the API and validates real responses.
 >
-> The product count check is particularly strict â€” it requires exactly 12 products, not 'at least 1'. If someone reseeds the database with the wrong data, the smoke test immediately catches it.
+> The product count check is particularly strict - it requires exactly 8 products, not 'at least 1'. If someone reseeds the database with the wrong data, the smoke test immediately catches it.
 >
 > The 403 check is also important â€” it verifies that missing or forged admin tokens are rejected. A test that only checks happy paths misses half the story.
 >
@@ -459,7 +459,7 @@ Optional: run `npm run smoke` in the terminal during the presentation to show th
 | 1 | Open `http://localhost:3000` | Home page in Georgian |
 | 2 | Toggle language to English | Bilingual UI switch |
 | 3 | Toggle back to Georgian | Georgian as default |
-| 4 | Go to `/products`, filter by "Romantic" category | Filter system, 12 products |
+| 4 | Go to `/products`, filter by "Romantic" category | Filter system, 8 products |
 | 5 | Click one product â†’ Add to Cart | Product detail, cart toast |
 | 6 | Go to `/designer`, fill preferences, Generate | AI designer, image scoring |
 | 7 | Add AI design to cart | Mixed cart |

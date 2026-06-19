@@ -450,10 +450,10 @@ The fallback is seamless â€” the customer sees 4 bouquet images regardless 
 
 All data (products, orders, contact messages, AI designs) is stored in and loaded from MongoDB Atlas. The backend health endpoint (`GET /api/health`) returns `"database": "connected"`.
 
-The smoke test requires exactly 12 products. If a different count is returned:
+The smoke test requires exactly 8 products. If a different count is returned:
 ```bash
 cd backend
-npm run seed   # reseed 12 products
+npm run seed   # reseed 8 products
 # then restart the backend
 ```
 
@@ -539,7 +539,7 @@ To enable real Gemini generation:
 
 ### Product count is not 12
 
-**Symptom:** Smoke test `FAIL Expected exactly 12 products, got N`.
+**Symptom:** Smoke test `FAIL Expected exactly 8 products, got N`.
 
 **Fix:**
 ```bash
