@@ -1,7 +1,17 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 function adminHeaders(includeContentType = true) {
-  const key = sessionStorage.getItem('floradesigner_admin_key') || '';
+  const expiresAt = Number(sessionStorage.getItem('floradesigner_admin_expires_at') || 0);
+  const key = expiresAt && expiresAt <= Date.now()
+    ? ''
+    : sessionStorage.getItem('floradesigner_admin_key') || '';
+
+  if (!key && expiresAt) {
+    sessionStorage.removeItem('floradesigner_admin_key');
+    sessionStorage.removeItem('floradesigner_admin_user');
+    sessionStorage.removeItem('floradesigner_admin_expires_at');
+  }
+
   const headers = includeContentType ? { 'Content-Type': 'application/json' } : {};
   if (key) headers['X-Admin-Key'] = key;
   return headers;

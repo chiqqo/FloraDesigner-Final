@@ -28,6 +28,9 @@ export default function AdminLogin() {
       const data = await adminLoginApi({ username: form.username.trim(), password: form.password });
       sessionStorage.setItem('floradesigner_admin_key', data.token);
       if (data.username) sessionStorage.setItem('floradesigner_admin_user', data.username);
+      if (data.expiresAt) {
+        sessionStorage.setItem('floradesigner_admin_expires_at', String(data.expiresAt));
+      }
       navigate('/admin/dashboard');
     } catch {
       setLoginError('Incorrect username or password.');

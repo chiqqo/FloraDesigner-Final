@@ -146,7 +146,7 @@ graph TB
 
 | Feature | Description |
 |---|---|
-| Admin login | Credentials validated server-side; token stored in `sessionStorage`. |
+| Admin login | Credentials validated server-side; signed expiring token stored in `sessionStorage`. |
 | Dashboard | Summary stats (products, orders, revenue, AI designs). Order list with status update. Contact messages. |
 | Product management | Full CRUD — add, edit, delete, availability toggle. |
 
@@ -209,7 +209,7 @@ Every HTTP request from the browser:
 1. Arrives at the Vite proxy (`/api/*` → `localhost:5000`) in development.
 2. Passes through Express JSON parsing and CORS middleware.
 3. Reaches the matching route handler.
-4. If admin-protected: `requireAdmin` validates the `X-Admin-Key` header.
+4. If admin-protected: `requireAdmin` validates the signed `X-Admin-Key` token and expiry.
 5. If database-dependent: `requireDatabase` checks Mongoose `readyState`.
 6. The controller executes business logic, queries MongoDB, and returns a JSON response.
 
@@ -299,7 +299,7 @@ flowchart TD
 | Middleware | File | Purpose |
 |---|---|---|
 | `requireDatabase` | `middleware/requireDatabase.js` | Returns `503` if `mongoose.connection.readyState !== 1`. Prevents controllers from executing DB calls when Atlas is unreachable. |
-| `requireAdmin` | `middleware/requireAdmin.js` | Checks `X-Admin-Key` header against `process.env.ADMIN_API_KEY`. Returns `403` if missing or mismatched. |
+| `requireAdmin` | `middleware/requireAdmin.js` | Verifies the signed `X-Admin-Key` token, checks expiry, and returns `403` if missing, expired, or invalid. |
 
 ### Backend API flow
 
@@ -324,7 +324,7 @@ sequenceDiagram
     end
 
     Browser->>Express: PUT /api/orders/:id/status
-    Express->>requireAdmin: check X-Admin-Key
+    Express->>requireAdmin: check signed X-Admin-Key
     alt Invalid key
         requireAdmin-->>Browser: 403 Forbidden
     else Valid key
@@ -471,11 +471,11 @@ FloraDesigner implements demo-level token-based authentication appropriate for a
 **Login flow:**
 
 1. Admin submits `POST /api/auth/admin/login` with `{ username, password }`.
-2. The backend compares the submitted values against `ADMIN_USERNAME` and `ADMIN_PASSWORD` environment variables (plain-text comparison — no bcrypt).
-3. On success, the backend returns `{ token: ADMIN_API_KEY }`.
-4. The frontend stores the token in `sessionStorage` under key `'floradesigner_admin_key'`.
+2. The backend compares the username with `ADMIN_USERNAME` and verifies the password using `ADMIN_PASSWORD_HASH` when configured, or `ADMIN_PASSWORD` as a demo fallback.
+3. On success, the backend returns `{ token, expiresAt }`, where `token` is signed with `ADMIN_TOKEN_SECRET`.
+4. The frontend stores the token and expiry in `sessionStorage`.
 5. All subsequent admin requests include the header `X-Admin-Key: <token>`.
-6. The `requireAdmin` middleware validates the header on every protected route.
+6. The `requireAdmin` middleware verifies the token signature and expiry on every protected route.
 
 **Scope of protection:**
 - `POST /api/products` — create product
@@ -554,7 +554,7 @@ Price range: ₾60 – ₾190.
 | MongoDB offline | `requireDatabase` middleware returns 503. The frontend catches the 503 and activates localStorage fallback. |
 | Product image broken | `utils/imageFallback.js` provides an `onError` handler that replaces the broken `src` with a generic placeholder. |
 | Gemini quota exhausted | `generateWithGemini()` catches the API error and returns `null`. The controller then executes `scoreImages()` and returns the fallback pool. |
-| Admin token missing / wrong | `requireAdmin` returns 403. The frontend shows an error state in the admin UI. |
+| Admin token missing / wrong / expired | `requireAdmin` returns 403. The frontend shows an error state in the admin UI. |
 | Cart empty at checkout | The Checkout page validates cart contents on mount and redirects to `/cart` if empty. |
 | Form validation failure | All forms validate client-side with `t()`-translated error messages before any network request. |
 
@@ -613,7 +613,7 @@ A full code-inspection QA pass was performed across all 14 page components after
 |---|---|---|
 | Secret management | All secrets in `backend/.env`, covered by `.gitignore`. Frontend has no `.env`. | `backend/.env` is never committed. |
 | API key isolation | `GEMINI_API_KEY` never leaves the server. | Gemini calls are server-side only. |
-| Admin token scope | `X-Admin-Key` validated per-request server-side. Token stored in `sessionStorage` (cleared on tab close). | No `localStorage` for the admin token. |
+| Admin token scope | Signed `X-Admin-Key` token validated per-request server-side and stored in `sessionStorage` (cleared on tab close). | No `localStorage` for the admin token. |
 | CORS | Express CORS configured to `CLIENT_ORIGIN` from env. | Blocks cross-origin requests from unknown origins. |
 | Input validation | Required-field validation in all controllers and forms. | Not production-hardened; no sanitization against XSS or injection. |
 | No payment data | All payment methods are simulated. No card numbers, CVVs, or financial data are transmitted or stored. | By design — payment gateway integration is out of scope. |
@@ -625,7 +625,7 @@ A full code-inspection QA pass was performed across all 14 page components after
 
 | Area | Detail |
 |---|---|
-| Authentication | Demo-level only. Plain-text credential comparison against env vars. No bcrypt, no JWT, no token expiry. |
+| Authentication | Single-admin demo auth with optional PBKDF2 password hash and signed expiring token. No customer account system or role hierarchy. |
 | Authorization granularity | Single admin role. No per-operation permission scopes. |
 | Customer accounts | No registration or login. Order history is per-browser via `localStorage`. |
 | Payment processing | Fully simulated. No real payment gateway is integrated. |
@@ -642,7 +642,7 @@ A full code-inspection QA pass was performed across all 14 page components after
 
 | Improvement | Description |
 |---|---|
-| Production authentication | Replace plain-text admin auth with bcrypt + JWT with expiry and refresh tokens. |
+| Production authentication | Replace single-admin demo auth with full user accounts, role-based permissions, standard JWT/refresh tokens, and password-reset flow. |
 | Customer accounts | Add email/password registration and login for customers. Bind orders to user accounts. |
 | Payment integration | Integrate a real payment gateway (Stripe, PayPal, or a Georgian bank's API). |
 | Georgian payment options | Add TBC Pay, Bank of Georgia gateway, or BOG Checkout. |

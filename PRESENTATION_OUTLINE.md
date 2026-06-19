@@ -195,7 +195,7 @@ server.js  →  routes/  →  middleware/  →  controllers/  →  models/
 | Middleware | Trigger | Response |
 |---|---|---|
 | `requireDatabase` | MongoDB not connected | 503 Database unavailable |
-| `requireAdmin` | Missing / wrong X-Admin-Key header | 403 Forbidden |
+| `requireAdmin` | Missing / wrong / expired X-Admin-Key token | 403 Forbidden |
 
 **17 REST endpoints across 6 resources:**
 - `/api/health` — connectivity check
@@ -209,7 +209,7 @@ server.js  →  routes/  →  middleware/  →  controllers/  →  models/
 
 > "The backend is organized in a classic Express pattern: routes define URL paths, middleware handles cross-cutting concerns like authentication and database availability, and controllers contain the business logic.
 >
-> The two middleware functions are particularly important. `requireDatabase` checks Mongoose's connection state before any database operation — this is what makes the 503 fallback work. `requireAdmin` validates the `X-Admin-Key` header on every admin request, so even if someone discovers the API URL, they cannot modify products or read contact messages without the admin token.
+> The two middleware functions are particularly important. `requireDatabase` checks Mongoose's connection state before any database operation — this is what makes the 503 fallback work. `requireAdmin` validates the signed `X-Admin-Key` token on every admin request, so even if someone discovers the API URL, they cannot modify products or read contact messages without a valid admin session.
 >
 > The designer/generate endpoint is special — it does not require MongoDB at all, so it always works regardless of database connectivity."
 
@@ -337,10 +337,10 @@ Optional: show MongoDB Atlas in the browser — click on the `orders` collection
 
 **Authentication mechanism:**
 1. `POST /api/auth/admin/login` validates username + password against `.env`
-2. Backend returns `{ token: ADMIN_API_KEY }`
-3. Frontend stores token in `sessionStorage` (cleared on tab close)
+2. Backend returns `{ token, expiresAt }` as a signed admin session
+3. Frontend stores token and expiry in `sessionStorage` (cleared on tab close)
 4. All admin requests include `X-Admin-Key: <token>` header
-5. `requireAdmin` middleware validates on every protected route
+5. `requireAdmin` middleware validates signature and expiry on every protected route
 
 **Admin capabilities:**
 
@@ -353,7 +353,7 @@ Optional: show MongoDB Atlas in the browser — click on the `orders` collection
 
 ### Speaker notes
 
-> "Admin authentication is demo-level but it is real server-side validation. The credentials are not checked in the frontend — they are posted to the backend, which compares them against environment variables and returns a token. The frontend then sends that token as a custom header on every admin request.
+> "Admin authentication is demo-level but it is real server-side validation. The credentials are not checked in the frontend — they are posted to the backend, which verifies them against environment variables and returns a signed token with an expiry time. The frontend then sends that token as a custom header on every admin request.
 >
 > The session is stored in `sessionStorage`, not `localStorage`, which means it expires when the browser tab is closed. This was a deliberate security choice for the demo context.
 >
@@ -439,7 +439,7 @@ npm run smoke   ← from the backend/ directory
 >
 > The product count check is particularly strict — it requires exactly 12 products, not 'at least 1'. If someone reseeds the database with the wrong data, the smoke test immediately catches it.
 >
-> The 403 check is also important — it verifies that the admin token validation actually works. A test that only checks happy paths misses half the story.
+> The 403 check is also important — it verifies that missing or forged admin tokens are rejected. A test that only checks happy paths misses half the story.
 >
 > Every significant change to the project was followed by running the smoke test and a production build. All 15 checks pass and the build is clean."
 
@@ -492,7 +492,7 @@ Optional: run `npm run smoke` in the terminal during the presentation to show th
 
 | Area | Current state |
 |---|---|
-| Admin authentication | Demo-level: plain-text credential comparison, no bcrypt, no JWT |
+| Admin authentication | Single-admin demo auth: optional PBKDF2 password hash and signed expiring token, but no customer accounts or role hierarchy |
 | Customer accounts | No registration/login — order history is per-browser |
 | Payment | Fully simulated — no real payment gateway |
 | AI generation | Requires Gemini API key with active quota; fallback is seamless |
@@ -500,7 +500,7 @@ Optional: run `npm run smoke` in the terminal during the presentation to show th
 
 **Planned future improvements:**
 
-- Production authentication: bcrypt + JWT with token expiry
+- Production authentication: full accounts, role-based permissions, standard JWT/refresh tokens, and password reset
 - Customer registration and login — bind orders to accounts
 - Real payment gateway (Stripe or Georgian bank API: TBC Pay / Bank of Georgia)
 - Cloudinary or AWS S3 for product image hosting
@@ -510,7 +510,7 @@ Optional: run `npm run smoke` in the terminal during the presentation to show th
 
 ### Speaker notes
 
-> "I am transparent about the limitations of this project. The most significant is the authentication model — credentials are compared as plain text against environment variables. This is appropriate for a demonstration but not for production. In a production system I would use bcrypt for password hashing and JWT for token management with expiry.
+> "I am transparent about the limitations of this project. The authentication model is now server-side and uses a signed expiring admin token, with support for a hashed admin password. However, it is still a single-admin demo model. In a production system I would add customer accounts, role-based permissions, refresh tokens, password reset, and audit logging.
 >
 > The payment simulation is intentional — integrating a real payment gateway was outside the scope of a bachelor project, but the checkout flow, form validation, and order creation pipeline are all production-ready patterns.
 >
@@ -556,7 +556,7 @@ None. This is a talking slide.
 
 | Question | Key point in your answer |
 |---|---|
-| Why not use JWT? | Scope decision — demo auth is sufficient; bcrypt + JWT is identified as first future improvement |
+| Why not use a full identity system? | Scope decision — the project has signed admin tokens, while full customer accounts and role-based permissions are listed as future improvements |
 | How does the Gemini fallback work? | Tag-scoring algorithm over IMAGE_POOL — show the TECHNICAL_REPORT diagram |
 | How do you handle MongoDB being offline? | `requireDatabase` middleware → 503 → frontend localStorage fallback |
 | Why no customer login system? | Out of scope; order history works per-browser via localStorage; noted as future improvement |

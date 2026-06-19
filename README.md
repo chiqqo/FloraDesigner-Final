@@ -113,7 +113,10 @@ MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/floradesigner
 CLIENT_ORIGIN=http://localhost:3000
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
-ADMIN_API_KEY=some-random-string
+ADMIN_PASSWORD_HASH=
+ADMIN_TOKEN_SECRET=some-long-random-secret
+ADMIN_API_KEY=legacy-fallback-key
+ALLOW_LEGACY_ADMIN_KEY=false
 GEMINI_API_KEY=           # optional — omit to use simulated images
 ```
 
@@ -158,8 +161,11 @@ All backend secrets live in `backend/.env`. The frontend has no `.env` file — 
 | `MONGO_URI` | Yes | MongoDB connection string (Atlas or local) |
 | `CLIENT_ORIGIN` | No | CORS allowed origin, default `http://localhost:3000` |
 | `ADMIN_USERNAME` | Yes | Username for `POST /api/auth/admin/login` |
-| `ADMIN_PASSWORD` | Yes | Password for admin login |
-| `ADMIN_API_KEY` | Yes | Token returned on login, validated as `X-Admin-Key` on protected routes |
+| `ADMIN_PASSWORD` | Yes* | Demo fallback password for admin login |
+| `ADMIN_PASSWORD_HASH` | No | Preferred PBKDF2 password hash generated with `npm run hash-admin-password -- "password"` |
+| `ADMIN_TOKEN_SECRET` | Yes | Secret used to sign short-lived admin tokens |
+| `ADMIN_API_KEY` | Yes | Legacy fallback secret; also used if `ADMIN_TOKEN_SECRET` is not set |
+| `ALLOW_LEGACY_ADMIN_KEY` | No | Set to `true` only if static admin-key compatibility is needed |
 | `GEMINI_API_KEY` | No | Google Gemini API key for real AI image generation; omit to use simulated images |
 
 ---
@@ -182,9 +188,9 @@ All backend secrets live in `backend/.env`. The frontend has no `.env` file — 
 | GET | `/api/designer` | Admin | List generated designs |
 | POST | `/api/contact` | — | Submit contact message |
 | GET | `/api/contact` | Admin | Read contact messages |
-| POST | `/api/auth/admin/login` | — | Admin login → returns `ADMIN_API_KEY` token |
+| POST | `/api/auth/admin/login` | — | Admin login, returns signed short-lived admin token |
 
-Admin routes require the `X-Admin-Key: <ADMIN_API_KEY>` header.
+Admin routes require the `X-Admin-Key: <signed admin token>` header.
 
 ---
 
@@ -219,7 +225,7 @@ Default demo values (change before any public deployment):
 | Username | `admin` |
 | Password | `admin123` |
 
-The backend validates credentials server-side and returns the `ADMIN_API_KEY` token. The frontend stores it in `sessionStorage` and sends it as `X-Admin-Key` on all admin API requests. This is demo-level auth — no bcrypt, no JWT, no customer account system.
+The backend validates credentials server-side and returns a signed admin token with an expiry time. The frontend stores it in `sessionStorage` and sends it as `X-Admin-Key` on all admin API requests. The backend verifies the token signature and expiry on every protected route. Passwords can use `ADMIN_PASSWORD_HASH` for PBKDF2 hashing, while `ADMIN_PASSWORD` remains as a simple demo fallback.
 
 ---
 
@@ -244,7 +250,7 @@ No dollar signs appear anywhere in the UI. Backend stores prices as plain number
 
 | Area | Detail |
 |---|---|
-| Authentication | Demo-level — plain-text credential comparison, no bcrypt or JWT. Suitable for a bachelor project, not for production. |
+| Authentication | Server-side admin login with signed expiring tokens and optional PBKDF2 password hash. Still single-admin demo auth, not a full customer account system. |
 | Payment | All payment methods are simulated. No real transactions occur. |
 | AI generation | Requires a Gemini API key with active quota. Falls back to simulated images otherwise. |
 | Customer accounts | No registration or login. Order history is per-browser via `localStorage`. |

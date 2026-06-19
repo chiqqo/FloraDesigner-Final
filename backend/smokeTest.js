@@ -120,8 +120,13 @@ async function testAdminLogin() {
     username: ADMIN_USERNAME,
     password: ADMIN_PASSWORD,
   });
-  if (good.status === 200 && good.body.token) {
-    pass('Correct credentials accepted', 'token received');
+  if (
+    good.status === 200 &&
+    good.body.token &&
+    good.body.token.includes('.') &&
+    Number(good.body.expiresAt) > Date.now()
+  ) {
+    pass('Correct credentials accepted', 'signed token received');
   } else {
     fail('Correct credentials rejected', `got ${good.status} ${JSON.stringify(good.body)}`);
   }
@@ -220,6 +225,16 @@ async function testUpdateOrderStatus(orderId, adminToken) {
   unauth.status === 403
     ? pass('Request without X-Admin-Key rejected with 403')
     : fail('Expected 403 for missing X-Admin-Key', `got ${unauth.status}`);
+
+  const forged = await request(
+    'PUT',
+    `/orders/${orderId}/status`,
+    { status: 'Ready' },
+    { 'X-Admin-Key': 'invalid.token.value' }
+  );
+  forged.status === 403
+    ? pass('Forged admin token rejected with 403')
+    : fail('Expected 403 for forged admin token', `got ${forged.status}`);
 }
 
 async function testDesignerGenerate() {

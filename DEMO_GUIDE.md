@@ -100,9 +100,9 @@ If the backend itself is not running, the frontend localStorage fallback activat
 | Username | `admin` |
 | Password | `admin123` |
 
-**How it works:** Admin credentials are submitted to the backend route `POST /api/auth/admin/login`. The backend validates the username and password against values set in environment variables, then returns a demo admin token. The frontend stores the token in sessionStorage and sends it as the `X-Admin-Key` header on admin-only API requests. Product create, edit, and delete; order status updates; and reading contact messages are all protected by this token check on the backend.
+**How it works:** Admin credentials are submitted to the backend route `POST /api/auth/admin/login`. The backend validates the username and password against values set in environment variables, then returns a signed admin token with an expiry time. The frontend stores the token in sessionStorage and sends it as the `X-Admin-Key` header on admin-only API requests. Product create, edit, and delete; order status updates; and reading contact messages are all protected by this backend token check.
 
-This is demo-level authentication suitable for a bachelor project presentation. It is not production-grade security - there is no bcrypt password hashing, no JWT, and no customer account system.
+This is bachelor-project-level admin authentication. It includes server-side validation, optional PBKDF2 password hashing, signed expiring admin tokens, and protected backend routes. It is still not a full production identity system because there are no customer accounts, password reset flow, or role hierarchy.
 
 Admin panel URL: **http://localhost:3000/admin**
 
@@ -216,7 +216,7 @@ Admin panel URL: **http://localhost:3000/admin**
 |---|---|
 | AI image generation | The backend tries Gemini image generation when GEMINI_API_KEY is set. If Gemini is unavailable, out of quota, or requires billing it has not received, the app intentionally falls back to curated simulated bouquet images. This is expected and acceptable for the demo. |
 | Payment processing | All three payment methods (Cash on Delivery, Demo Card, Bank Transfer) are simulated. No real transaction occurs. |
-| Authentication | Admin credentials are validated server-side via `POST /api/auth/admin/login`. The backend returns a demo token stored in sessionStorage and sent as `X-Admin-Key` on protected requests. Product create/edit/delete, order status updates, and contact message reads are backend-protected routes. This is demo-level auth - not production-grade. No bcrypt, JWT, or customer account system is used. |
+| Authentication | Admin credentials are validated server-side via `POST /api/auth/admin/login`. The backend returns a signed expiring token stored in sessionStorage and sent as `X-Admin-Key` on protected requests. Product create/edit/delete, order status updates, and contact message reads are backend-protected routes. This is single-admin demo auth, not a full customer account or role-based identity system. |
 | localStorage fallback | When the backend is offline, orders, products, and contact messages are stored in the browser's localStorage. This data is per-browser and not shared. |
 | MongoDB | The backend reads MONGO_URI from backend/.env and supports both MongoDB Atlas and local MongoDB. Without a running MongoDB instance, orders and products created via the API will not persist. The frontend falls back to localStorage automatically. |
 | User accounts | There is no customer registration or login system. Order history is stored per browser session. |

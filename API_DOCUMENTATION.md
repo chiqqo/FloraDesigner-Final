@@ -18,7 +18,7 @@ routes/index.js         — Registers all sub-routers under /api
 routes/*.js             — Route definitions per resource
 middleware/
   requireDatabase.js    — Returns 503 if MongoDB is not connected
-  requireAdmin.js       — Validates X-Admin-Key header against ADMIN_API_KEY env var
+  requireAdmin.js       — Validates signed X-Admin-Key admin token and expiry
 controllers/*.js        — Business logic, Mongoose calls, HTTP responses
 models/*.js             — Mongoose schemas (see Collections section)
 config/db.js            — mongoose.connect() using MONGO_URI
@@ -36,14 +36,14 @@ No authentication required. Any client can call them.
 ### Admin-protected routes
 These routes require the header:
 ```
-X-Admin-Key: <ADMIN_API_KEY>
+X-Admin-Key: <signed-admin-token>
 ```
 
 **How to get the token:**
 
-`POST /api/auth/admin/login` validates the submitted username and password against the `ADMIN_USERNAME` and `ADMIN_PASSWORD` environment variables. On success it returns the value of `ADMIN_API_KEY` as `token`. The frontend stores this in `sessionStorage` and attaches it to every subsequent admin request.
+`POST /api/auth/admin/login` validates the submitted username and password against server environment variables. The preferred password setting is `ADMIN_PASSWORD_HASH` (PBKDF2); `ADMIN_PASSWORD` remains as a simple demo fallback when no hash is configured. On success the backend returns a signed short-lived admin token and `expiresAt`. The frontend stores this in `sessionStorage` and attaches it to every subsequent admin request.
 
-This is demo-level authentication (no bcrypt, no JWT, no expiry). It is appropriate for a bachelor graduation project.
+The token is signed server-side and checked for expiry by `requireAdmin`. This remains a single-admin demo authentication system, not a complete customer account system.
 
 ---
 
@@ -137,7 +137,7 @@ This is demo-level authentication (no bcrypt, no JWT, no expiry). It is appropri
 { "message": "Invalid admin credentials." }
 ```
 
-The returned `token` is the value of `ADMIN_API_KEY`. Send it as `X-Admin-Key` on all subsequent admin requests.
+The returned `token` is a signed admin session token. Send it as `X-Admin-Key` on all subsequent admin requests.
 
 ---
 
@@ -343,7 +343,7 @@ The fallback is intentional and seamless — the frontend displays both Gemini a
 
 | Limitation | Detail |
 |---|---|
-| Admin authentication | Plain-text credential comparison against env vars. No bcrypt, no JWT, no token expiry. Suitable for a bachelor graduation project demo. |
+| Admin authentication | Server-side admin login, optional PBKDF2 password hash, and signed expiring admin token. Still single-admin demo auth, not customer authentication. |
 | Payment processing | All payment methods (Cash on Delivery, Demo Card, Bank Transfer) are simulated. No payment gateway is integrated. |
 | Gemini quota | Real AI image generation requires a Gemini API key with active quota or billing enabled. Without it the app uses simulated images automatically. |
 | No customer accounts | Orders are not tied to a logged-in user. Order history is stored per browser in `localStorage` on the frontend. |
